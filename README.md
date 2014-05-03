@@ -3,23 +3,23 @@ Translate [official elixir getting started guide](http://elixir-lang.org/getting
 
 ## 入门
 
-### 第一章 - 互动模式（iex）                   ✓
+### [第一章 - 互动模式（iex）](./getting_started/Chapter1.md)                   ✓
 
-### 第二章 - 基础数据结构                      ✓
+### [第二章 - 基础数据结构](./getting_started/Chapter2.md)                      ✓
 
-### 第三章 - 基础操作符                        ✓
+### [第三章 - 基础操作符](./getting_started/Chapter3.md)                        ✓
 
-### 第四章 - 模式匹配                          ✓
+### [第四章 - 模式匹配](./getting_started/Chapter4.md)                          ✓
 
-### 第五章 - `case`，`cond`和`if`              ✓
+### [第五章 - `case`，`cond`和`if`](./getting_started/Chapter5.md)              ✓
 
-### 第六章 - 二进制，字符串和字符列表
+### [第六章 - 二进制，字符串和字符列表](./getting_started/Chapter6.md)          ✓
 
 ### 第七章 - 关键字，表单和字典
 
 ### 第八章 - 模块
 
-### 第九章 - 回调
+### 第九章 - 递归
 
 ### 第十章 - 可枚举类和流
 
