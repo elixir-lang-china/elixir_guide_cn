@@ -3,15 +3,15 @@ Translate [official elixir getting started guide](http://elixir-lang.org/getting
 
 ## 入门
 
-### 第一章 - 互动模式（iex）
+### 第一章 - 互动模式（iex）                   ✓
 
-### 第二章 - 基础数据结构
+### 第二章 - 基础数据结构                      ✓
 
-### 第三章 - 基础操作符
+### 第三章 - 基础操作符                        ✓
 
-### 第四章 - 模式匹配
+### 第四章 - 模式匹配                          ✓
 
-### 第五章 - `case`，`cond`和`if`
+### 第五章 - `case`，`cond`和`if`              ✓
 
 ### 第六章 - 二进制，字符串和字符列表
 
