@@ -21,7 +21,7 @@ Translate [official elixir getting started guide](http://elixir-lang.org/getting
 
 ### [第九章 - 递归](./getting_started/Chapter9.md)                              ✓
 
-### 第十章 - 可枚举类和流
+### [第十章 - 可枚举类和流](./getting_started/Chapter10.md)                       ✓
 
 ### 第十一章 - 进程
 
