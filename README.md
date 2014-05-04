@@ -17,9 +17,9 @@ Translate [official elixir getting started guide](http://elixir-lang.org/getting
 
 ### [第七章 - 关键字，表单和字典](./getting_started/Chapter7.md)                  ✓
 
-### [第八章 - 模块](./getting_started/Chapter8.md)                                ✓
+### [第八章 - 模块](./getting_started/Chapter8.md)                              ✓
 
-### 第九章 - 递归
+### [第九章 - 递归](./getting_started/Chapter9.md)                              ✓
 
 ### 第十章 - 可枚举类和流
 
