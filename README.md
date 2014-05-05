@@ -25,7 +25,7 @@ Translate [official elixir getting started guide](http://elixir-lang.org/getting
 
 ### [第十一章 - 进程](./getting_started/Chapter11.md)                            ✓
 
-### [第十二章 - IO](./getting_started/Chaper12.md)                              ✓
+### [第十二章 - IO](./getting_started/Chapter12.md)                              ✓
 
 ### 第十三章 - `alias`，`require`和`import`
 
