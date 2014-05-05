@@ -65,7 +65,7 @@ Elixir的每一个release都提供了[预先编译好的安装包](https://githu
 export PATH="$PATH:/path/to/elixir/bin"
 ```
 
-万一你想尝鲜的话，你还可以从git masterbianyi：
+万一你想尝鲜的话，你还可以从git master编译：
 
 ```
 $ git clone https://github.com/elixir-lang/elixir.git
