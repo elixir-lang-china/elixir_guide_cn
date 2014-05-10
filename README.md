@@ -29,13 +29,13 @@ Translate [official elixir getting started guide](http://elixir-lang.org/getting
 
 ### [第十三章 - `alias`，`require`和`import`](./getting_started/Chapter13.md)   ✓
 
-### 第十四章 - 模块属性
+### [第十四章 - 模块属性](./getting_started/Chapter14.md)                        ✓
 
-### 第十五章 - Structs
+### [第十五章 - Structs](./getting_started/Chapter15.md)                        ✓
 
-### 第十六章 - 协议
+### [第十六章 - 协议](./getting_started/Chapter16.md)                            ✓
 
-### 第十七章 - `try`，`catch`和`rescue`
+### [第十七章 - `try`，`catch`和`rescue`](./getting_started/Chapter17.md)         ✓
 
 ### 第十八章 - Comprehensions
 
