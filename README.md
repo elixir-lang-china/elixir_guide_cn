@@ -35,13 +35,13 @@ Translate [official elixir getting started guide](http://elixir-lang.org/getting
 
 ### [第十六章 - 协议](./getting_started/Chapter16.md)                            ✓
 
-### [第十七章 - `try`，`catch`和`rescue`](./getting_started/Chapter17.md)         ✓
+### [第十七章 - `try`，`catch`和`rescue`](./getting_started/Chapter17.md)        ✓
 
-### 第十八章 - Comprehensions
+### [第十八章 - Comprehensions](./getting_started/Chapter18.md)                 ✓
 
-### 第十九章 - Sigils
+### [第十九章 - Sigils](./getting_started/Chapter19.md)
 
-### 第二十章 - 更多内容
+### [第二十章 - 更多内容](./getting_started/Chapter20.md)
 
 
 ## Mix - Elixir的编译工具
