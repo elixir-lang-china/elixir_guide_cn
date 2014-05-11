@@ -55,7 +55,7 @@ Translate [official elixir getting started guide](http://elixir-lang.org/getting
 
 ## EXUNIT - 单元测试工具
 
-[### 第一章 - 简介](./exunit/Chapter1.md)
+### [第一章 - 简介](./exunit/Chapter1.md)
 
 
 ## Elixir元编程
