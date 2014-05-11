@@ -52,9 +52,11 @@ Translate [official elixir getting started guide](http://elixir-lang.org/getting
 
 ### 第三章 - 定制Mix任务
 
+
 ## EXUNIT - 单元测试工具
 
-### 第一章 - 简介
+[### 第一章 - 简介](./exunit/Chapter1.md)
+
 
 ## Elixir元编程
 
