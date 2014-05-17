@@ -39,16 +39,16 @@ Translate [official elixir getting started guide](http://elixir-lang.org/getting
 
 ### [第十八章 - Comprehensions](./getting_started/Chapter18.md)                 ✓
 
-### [第十九章 - Sigils](./getting_started/Chapter19.md)
+### [第十九章 - Sigils](./getting_started/Chapter19.md)                         ✓
 
-### [第二十章 - 更多内容](./getting_started/Chapter20.md)
+### [第二十章 - 更多内容](./getting_started/Chapter20.md)                        ✓ 
 
 
 ## Mix - Elixir的编译工具
 
 ### 第一章 - 简介
 
-### 第二章 - 用Mix来编译OTP应用
+### [第二章 - 用Mix来编译OTP应用](./mix/Chapter2.md)                             ✓
 
 ### 第三章 - 定制Mix任务
 
