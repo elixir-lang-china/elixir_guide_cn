@@ -46,11 +46,11 @@ Translate [official elixir getting started guide](http://elixir-lang.org/getting
 
 ## Mix - Elixir的编译工具
 
-### 第一章 - 简介
+### [第一章 - 简介](./mix/Chapter1.md)                                          ✓ 
 
 ### [第二章 - 用Mix来编译OTP应用](./mix/Chapter2.md)                             ✓
 
-### [第三章 - 定制Mix任务](./mix/Chapter3.md)                                    ✓ 
+### [第三章 - 定制Mix任务](./mix/Chapter3.md)                                    ✓
 
 
 ## EXUNIT - 单元测试工具
