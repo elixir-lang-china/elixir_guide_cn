@@ -26,7 +26,7 @@ iex> IO.puts :stderr, "hello world"
 ```
 # 12.2 文件模块
 
-[`File](http://elixir-lang.org/docs/stable/File.html)模块包含了一些可以把文件打开当成IO设备的函数。默认情况下，文件都是用二进制模式打开，这需要开发者指明使用`IO`  模块中的函数`IO.binread/2`和`IO.binwrite/2`：
+[File](http://elixir-lang.org/docs/stable/File.html)模块包含了一些可以把文件打开当成IO设备的函数。默认情况下，文件都是用二进制模式打开，这需要开发者指明使用`IO`模块中的函数`IO.binread/2`和`IO.binwrite/2`：
 
 ```
 iex> {:ok, file} = File.open "hello", [:write]
@@ -43,7 +43,7 @@ iex> File.read "hello"
 
 除了那些能打开，读写文件的函数之外，`File`模块还有很多在文件系统领域工作的函数。这些函数的名字对应于UNIX命令。例如，`File.rm/1`用于删除文件，`File.mkdir/1`用来创建文件夹， `File.mkdir/1`用来创建包含父目录的文件夹，甚至有`File.cp_r/2`和`File.rm_rf/2`用来复制和移除文件和文件夹。
 
-你也会注意到，`File`模块中的函数可以分为两种模式， 一种带有名字里带有`！`（bang），另一些没有。例如，在上面读取文件“hello”的时候，我们已经用到了一些，现在让我们在试试其他的例子：
+你也会注意到，`File`模块中的函数可以分为两种模式，一种带有名字里带有`!`（bang），另一些没有。例如，在上面读取文件“hello”的时候，我们已经用到了一些，现在让我们在试试其他的例子：
 
 ```
 iex> File.read "hello"
@@ -113,7 +113,7 @@ iex> IO.write(pid, "hello")
 
 在`IO.write/2`之后，我们能看到打印出来IO模块发送的请求，它失败了是因为，IO模块期待得到一些回复，而我们并没有这么做。
 
-``模块提供了在字符串之上的IO设备消息实现：
+[StringIO](http://elixir-lang.org/docs/stable/elixir/StringIO.html)模块提供了在字符串之上的IO设备消息实现：
 
 ```
 iex> {:ok, pid} = StringIO.start("hello")
