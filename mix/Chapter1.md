@@ -30,7 +30,7 @@ Mix是一个提供了用愈创建，编译，测试（很快就会有发布功�
 $ mix new my_project --bare
 ```
 
-Mix将常见一个名为``的目录，包含一下这些内容：
+Mix将创建一个名为`my_project`的目录，包含一下这些内容：
 
 ```
 .gitignore
