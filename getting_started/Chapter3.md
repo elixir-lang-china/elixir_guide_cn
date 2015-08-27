@@ -18,7 +18,7 @@ iex> "foo" <> "bar"
 "foobar"
 ```
 
-Elixir也提供个是那个布尔值操作符`or`，`and`和`not`。这些操作符严格地指定它们一个参数必须是一个布尔值（`true`或者`false`）：
+Elixir也提供布尔值操作符`or`，`and`和`not`。这些操作符严格地指定它们一个参数必须是一个布尔值（`true`或者`false`）：
 
 ```
 iex> true and true
@@ -98,7 +98,7 @@ iex> 1 < :atom
 true
 ```
 
-我们之所以可以在Elixir在不同数据类型之间比较是因为有一个内建的不同类型之间的顺序，所以算法在排序时无需担心数据类型上  的不同。下面就是内建的类型之间的顺序：
+我们之所以可以在Elixir的不同数据类型之间比较是因为有一个内建的不同类型之间的顺序，所以算法在排序时无需担心数据类型上  的不同。下面就是内建的类型之间的顺序：
 
 ```
 number < atom < reference < functions < port < pid < tuple < maps < list < bitstring
