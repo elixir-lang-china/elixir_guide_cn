@@ -4,11 +4,11 @@ Elixir中的模块属性有三个作用：
 
     1. 它们提供对模块的注释， 很多信息对用户和Erlang虚拟机都有用。
 
-    2. 它们也是恒量。
+    2. 它们也是常量。
 
-    3. 在编译时，它们也是模块的零时存储。
+    3. 在编译阶段，它们被当作临时的模块存储空间。
 
-让我们一一来看看
+让我们来依次看看
 
 ## 14.1 注释
 
@@ -28,7 +28,7 @@ Elixir有一些保留的属性。下面这些只是其中最常用的部分：
 * `@behaviour` （注意英式英语拼法）用来指定一个OTP或用户指定的行为
 * `@before_compile` 提供了一个在模块被编译之前的调用的hook。我们可以利用它在模块编译之前注入新的函数。
 
-`@moduledoc`和`@doc`是最产用的两个属性，我们会经常用到。Elixir把文档当成第一等公民，提供了很多用于访问文档的函数：
+`@moduledoc`和`@doc`是最常用的两个属性，我们会经常用到。Elixir把文档当成第一等公民，提供了很多用于访问文档的函数：
 
 ```
 iex> defmodule MyModule do
@@ -72,17 +72,17 @@ end
 
 你可以通过查看[Module](http://elixir-lang.org/docs/stable/Module.html)的文档来找到支持的属性的完整列表。Elixir也用属性来定义[typespecs](http://elixir-lang.org/docs/stable/Kernel.Typespec.html)，通过：
 
-* `@spec` - 提供了函数的指标
-* `@callback` - 提供了行为回调函数的指标
+* `@spec` - 提供了函数的描述
+* `@callback` - 提供了行为回调函数的描述
 * `@type` - 定义了在`@spec`内使用的类型
 * `@typep` - 定义了在`@spec`内部使用的私有类型
 * `@opaque` - 定义了在`@spec`内部使用的opaque类型
 
 这个部分涵盖了内建的属性。然而，属性也能被开发者使用或被库扩展来支持客制化的行为。
 
-## 14.2 作为恒量
+## 14.2 作为常量
 
-Elixir开发者会经常用模块属性来当成恒量：
+Elixir开发者会经常用模块属性来当成常量：
 
 ```
 defmodule MyServer do
@@ -91,7 +91,7 @@ defmodule MyServer do
 end
 ```
 
-> 注意，和Erlang不同，用户定义的属性默认不被存储咋模块内。它们的值只有在编译时才存在。开发者能用通过调用[`Module.register_attribute/3`](http://elixir-lang.org/docs/stable/Module.html#register_attribute/3)来使得一个属性接近Erlang中的行为。
+> 注意，和Erlang不同，用户定义的属性默认不被存储在模块内。它们的值只有在编译时才存在。开发者能用通过调用[`Module.register_attribute/3`](http://elixir-lang.org/docs/stable/Module.html#register_attribute/3)来使得一个属性接近Erlang中的行为。
 
 试图去访问一个不存在的属性为导致一个警告：
 
@@ -116,11 +116,11 @@ MyServer.first_data #=> 14
 MyServer.second_data #=> 13
 ```
 
-注意从函数内部读取一个属性的值，只是这个值的当前切片。也就是说，读取是在编译时而不是运行时发生的。我们将看到，这让属性能被当作编译时的溢恶存储机制。
+注意从函数内部读取一个属性的值，只是这个值的当前切片。也就是说，读取是在编译时而不是运行时发生的。我们将看到，这让属性只能被当作模块编译时的临时存储空间。
 
 ## 14.3 作为零时存储
 
-Elixir组织其中的一个项目是[`Plug`](https://github.com/elixir-lang/plug)，它是目标是称为Elixir中编写web库和框架的通过基础。
+Elixir组织其中的一个项目是[`Plug`](https://github.com/elixir-lang/plug)，它是目标是成为Elixir中编写web库和框架的通用基础。
 
 Plub库也允许开发者去定义它们自己的plugs，能被在web服务器内运行：
 
@@ -144,7 +144,7 @@ IO.puts "Running MyPlug with Cowboy on http://localhost:4000"
 Plug.Adapters.Cowboy.http MyPlug, []
 ```
 
-在上面的例子中，我们用宏` plug/1`去连接那些会被当web服务器存在时调用的函数。从内部来讲，每次你调用`plug/1`， Plub库会把接受到的参数存储在属性`@plugs`内。就在模块编译之气那，Plug调用了一个定义了访法(`call/2`)的回调，用它来处理请求。这个访法将按次序运行属性`@plugs`中的所有plugs。
+在上面的例子中，我们用宏` plug/1`去连接那些会被当web服务器存在时调用的函数。从内部来讲，每次你调用`plug/1`， Plub库会把接受到的参数存储在属性`@plugs`内。就在模块编译之前，Plug调用了一个定义了方法(`call/2`)的回调，用它来处理请求。这个方法将按次序运行属性`@plugs`中的所有plugs。
 
 为了能理解底层的代码，我们需要宏，随意我们讲在有关元编程的那一章再次研究这个模式。然而当前的焦点是去用模块属性来当成一个存储来运行开发者来创建DSL。
 
@@ -165,4 +165,4 @@ ExUnit中的标签用来注释测试，之后也能被用于过滤测试。例�
 
 我们希望这个部分让你领略了Elixir是如何支持元编程和模块属性是如何在其中扮演了一个重要的角色。
 
-在涉及到异常处理和其他结构sigils和comprehensions之气那，我们将在下一章，探索structs和协议。
+在涉及到异常处理和其他像sigils和comprehensions之类的结构之前，我们将在下一章探索structs和协议。

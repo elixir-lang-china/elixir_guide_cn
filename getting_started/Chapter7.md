@@ -58,7 +58,7 @@ iex> if false, do: :this, else: :that
 :that
 ```
 
-`do:`和`else:`启示就是关键字列表！实际上，这个和上面的调用是等价的：
+`do:`和`else:`其实就是关键字列表！实际上，这个和上面的调用是等价的：
 
 ```
 iex> if(false, [do: :this, else: :that])
@@ -67,7 +67,7 @@ iex> if(false, [do: :this, else: :that])
 
 总体来讲，当函数的最后一个参数是一个关键字列表的时候，方括号就不是必须的。
 
-为了能处理关键字列表，Elixir提供了[Keyword模块](http://elixir-lang.org/docs/stable/Keyword.html)。记住虽然关键字列表本质上还是列表，它们的性能如果列表也是线性的。列表越长，在计算长度之类的操作时， 就需要更多的时间来找到某个键。因此，关键字列表在Elixir中主要被用于可选项。如果你需要存储很多元素或确定哪一个键的值是最大的，有应该用表单（map）替代。
+为了能处理关键字列表，Elixir提供了[Keyword模块](http://elixir-lang.org/docs/stable/Keyword.html)。记住虽然关键字列表本质上还是列表，因此它们也跟列表一样提供相同的线性性能。列表越长，在计算长度之类的操作时， 就需要更多的时间来找到某个键。因此，关键字列表在Elixir中主要被用于可选项。如果你需要存储很多元素或确定哪一个键的值是最大的，有应该用表单（map）替代。
 
 注意我们同样能对关键字列表进行模式匹配：
 
@@ -95,11 +95,35 @@ iex> map[:a]
 1
 iex> map[2]
 :b
+iex> map[:c]
+nil
 ```
 
-和关键字列表比价，我们可以清楚地看到不同：
+和关键字列表比较，我们可以清楚地看到不同：
 *  表单允许任何类型的键
 *  表单的键没有特定的顺序
+
+注意变量不能被用作键来添加元素到一个表单：
+
+```
+iex> %{:x => 1}
+%{x: 1}
+iex> n = :x
+:x
+iex> %{n => 1}
+** (CompileError) iex:3: illegal use of variable n in map key
+```
+
+然而，变量可以作为键来访问表单中的元素：
+
+```
+iex> map = %{:a => 1, 2 => :b}
+%{2 => :b, :a => 1}
+iex> x = :a
+:a
+iex> map[x]
+1
+```
 
 当你创建表单的时候，如果有重复的键，只有最后一个才会被保留：
 
@@ -108,7 +132,7 @@ iex> %{1 => 1, 1 => 2}
 %{1 => 2}
 ```
 
-当一个表单中的所有键都是原子的时候，你就可以用关键字语法了：
+当一个表单中的所有键都是原子的时候，你就可以使用关键字语法来定义：
 
 ```
 iex> map = %{a: 1, b: 2}
@@ -130,6 +154,15 @@ iex> %{:c => c} = %{:a => 1, 2 => :b}
 
 正如上面的例子显示的，只要表单里有那个键，模式就能一直匹配。也就是说，一个空表单匹配所有的其他表单。
 
+[表单模块](http://elixir-lang.org/docs/stable/elixir/Map.html)提供了一个类似于 `Keyword` 模块的 API 来维护表单：
+
+```
+iex> Map.get(%{:a => 1, 2 => :b}, :a)
+1
+iex> Map.to_list(%{:a => 1, 2 => :b})
+[{2, :b}, {:a, 1}]
+```
+
 表单的一个有意思的特点是它提供了一个特有的语法来更新和访问原子类的键：
 
 
@@ -148,15 +181,17 @@ iex> %{map | :c => 3}
 
 在未来的篇章中，我们将会学到结构（structs），它为Elixir的多态性提供了一个编译时的保证和基础。结构就是构件在表单之上的，上面例子中显示的表单的更新的确定性会证明是非常有用的。
 
-对表单的处理是用过[Map模块](http://elixir-lang.org/docs/stable/Map.html)中的函数完成的，它提供了一个同关键字列表非常相似的API。这是因为表单和关键字列表都实现和字典（dict）行为。
+对表单的处理是用[Map模块](http://elixir-lang.org/docs/stable/Map.html)中的函数完成的，它提供了一个同关键字列表非常相似的API。这是因为表单和关键字列表都实现和字典（dict）行为。
 
-> 表单是新近才通过[EEP 443](http://elixir-lang.org/docs/stable/Map.html)被引入到Erlang虚拟机里的。Erlang 17提供了一个EEP的部分实现，它只实现了所谓的“小表单”。这意味着现在的表单只有当存储的元素数量不太大（几十个）的时候性能才有保证。为了弥补这一点，Elixir提供了[HashDict模块](http://elixir-lang.org/docs/stable/HashDict.html)，这个模块用一个哈希算法提供了一个支持存储几十万计键而又能保证良好性能的字典。
+当使用表单时，Elixir 开发者一贯用 `map.field` 的语法和模式匹配来代替使用表单模块中的函数。因为这样就引导出一种坚实的编程风格。[这篇博客](http://blog.plataformatec.com.br/2014/09/writing-assertive-code-with-elixir/)提供了一些意见和例子，来教你如何简洁且快速的编写 Elixir 程序代码。
+
+> 注意：表单是新近才通过[EEP 443](http://elixir-lang.org/docs/stable/Map.html)被引入到Erlang虚拟机里的。Erlang 17提供了一个EEP的部分实现，它只实现了所谓的“小表单”。这意味着现在的表单只有当存储的元素数量不太大（几十个）的时候性能才有保证。为了弥补这一点，Elixir提供了[HashDict模块](http://elixir-lang.org/docs/stable/HashDict.html)，这个模块用一个哈希算法提供了一个支持存储几十万计键而又能保证良好性能的字典。
 
 ## 7.3 字典（Dicts）
 
-在Elixir中，关键字列表和表单都是字典。也就是说，一个字典就如同一个界面（interface）（在Elixir中称为行为，behaviours），关键字列表和表单都实现了这个界面。
+在Elixir中，关键字列表和表单都是字典。也就是说，一个字典就如同一个接口（interface）（在Elixir中称为行为，behaviours），关键字列表和表单都实现了这个接口。
 
-这个界面是定义在[Dict模块](http://elixir-lang.org/docs/stable/Dict.html)之中，而且也它也提供了一套需要具体实现的API：
+这个接口是定义在[Dict模块](http://elixir-lang.org/docs/stable/Dict.html)之中，而且也它也提供了一套需要具体实现的API：
 
 ```
 iex> keyword = []
@@ -168,6 +203,7 @@ iex> Dict.put(keyword, :a, 1)
 iex> Dict.put(map, :a, 1)
 %{a: 1}
 ```
+
 字典模块允许开发者实现它们自己的字典，拥有自己的特性，并且能在现有的Elixir代码中使用。字典模块也提供了一些在所有的字典实现中都同用的函数。比如，函数`Dict.equal?/2`就能比较两个不同类型的字典。
 
 看到这里，你可能有些迷糊了，到底该如何选择使用`Keyword`，`Map`还是`Dict`？答案是依情况而定。

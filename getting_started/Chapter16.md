@@ -13,7 +13,7 @@ defprotocol Blank do
 end
 ```
 
-这个协议期待实现一个单个参数的函数的`blank?`。我们能为不同的Elixir数据类型实现这个协议：
+这个协议期待实现一个单个参数的函数`blank?`。我们能为不同的Elixir数据类型实现这个协议：
 
 ```
 # Integers are never blank
@@ -57,7 +57,7 @@ end
 * `Reference`
 * `Tuple`
 
-现在用了协议和它的实现在手，我们能调用了：
+现在定义了协议以及它的具体实现，我们就能调用它了：
 
 ```
 iex> Blank.blank?(0)
@@ -75,22 +75,21 @@ iex> Blank.blank?("hello")
 ** (Protocol.UndefinedError) protocol Blank not implemented for "hello"
 ```
 
-## 16.1 现已和structs
+## 16.1 协议和结构体
 
-Elixir的可扩展性的力量只有当协议和struct结合在一起的时候才显露出来。
+Elixir的可扩展性的威力只有当协议和结构体共同使用的时候才显露出来。
 
-在之前的一章，我们已经学习到了虽然struct就是表单，但它们并没有和表单共享协议的实现。然我们同在前面一章一样，定义一个`User`struct：
+在之前的一章，我们已经学习到了虽然结构体就是表单，但它们并没有共享表单的协议实现。让我们同前一章一样，定义一个 `User` 结构体：
 
 ```
 iex> defmodule User do
-...>   defstruct name: "jose", age: 27
+...>   defstruct name: "john", age: 27
 ...> end
 {:module, User,
  <<70, 79, 82, ...>>, {:__struct__, 0}}
 ```
 
-然后
-
+然后执行：
 
 ```
 iex> Blank.blank?(%{})
@@ -99,8 +98,7 @@ iex> Blank.blank?(%User{})
 ** (Protocol.UndefinedError) protocol Blank not implemented for %User{age: 27, name: "jose"}
 ```
 
-由于没有能和表单分享协议实现，struct需要它们自己的实现：
-
+由于没有能和表单分享协议实现，结构体需要它们自己的实现：
 
 ```
 defimpl Blank, for: User do
@@ -108,13 +106,13 @@ defimpl Blank, for: User do
 end
 ```
 
-如果需要，你可以使用你自己的对用户是否为空的定义。不仅如此，你能用struct来编写更健壮的数据类型，比如请求，和为这个数据实现所有的相关协议，例如`Enumerable`和甚至`Blank`。
+如果需要，你可以使用你自己的定义来判断用户是否为空。不仅如此，你能用结构体来编写更健壮的数据类型，比如队列，而且为这个数据类型实现所有的相关协议，例如`Enumerable`，甚至`Blank`。
 
-在许多的实际应用中，开发者也许希望为struct提供一个默认的实现，因为为每一个struct都实现这个协议会很无聊。这时就是falling back to any显示威力的时候：
+在许多的实际应用中，开发者也许希望为结构体提供一个默认的实现，因为为每一个结构都实现这个协议会很乏味。这时就是 `Any` 派上用场的时候了。
 
-# 16.2 Falling back to Any
+## 16.2 回归 `Any`
 
-如果我们能为所有的类型提供一个默认的实现，将是非常方便的。这可以通过在协议定义中讲设置`@fallback_to_any`为`true`来实现：
+如果我们能为所有的类型提供一个默认的实现，那将是非常方便的。这可以通过在协议定义中将`@fallback_to_any`设置为`true`来实现：
 
 ```
 defprotocol Blank do
@@ -131,11 +129,11 @@ defimpl Blank, for: Any do
 end
 ```
 
-现在所有的那些我们还没有实现`Blank`协议的的数据类型（包括struct），都会被视为不空。
+现在那些所有我们还没有实现`Blank`协议的的数据类型（包括结构体），都会被视为非空。
 
 # 16.3 内建协议
 
-Elixir包含了一个内建的协议。在之前的几章中，我们已经讨论了`Enum`模块就提供了许多的能通用于任何实现了`Enumerable`协议的数据类型：
+Elixir包含了一个内建的协议。在之前的几章中，我们已经讨论了`Enum`模块就提供了许多函数，能通用于任何实现了`Enumerable`协议的数据类型：
 
 ```
 iex> Enum.map [1, 2, 3], fn(x) -> x * 2 end
@@ -151,14 +149,14 @@ iex> to_string :hello
 "hello"
 ```
 
-注意Elixir中的字符串解析就调用了`to_string`函数：
+注意Elixir中的字符串插入就调用了`to_string`函数：
 
 ```
 iex> "age: #{25}"
 "age: 25"
 ```
 
-上的片段能运行因为数字实现了协议`String.Chars`。如果传递一个元组，会导致一个错误：
+以上片段能运行是因为数字实现了`String.Chars`协议。如果传递一个元组，会导致一个错误：
 
 ```
 iex> tuple = {1, 2, 3}
@@ -167,14 +165,14 @@ iex> "tuple: #{tuple}"
 ** (Protocol.UndefinedError) protocol String.Chars not implemented for {1, 2, 3}
 ```
 
-当有需要去“打印”更复杂的数据结构的时候，简单调用`inspect`函数就行，它是基于协议`Inspect`：
+当有需要去“打印”一个更复杂的数据结构时，简单调用`inspect`函数就行，它是基于`Inspect`协议：
 
 ```
 iex> "tuple: #{inspect tuple}"
 "tuple: {1, 2, 3}"
 ```
 
-`Inspect`协议用于把任何数据结构转换成可都的文字呈现。这也是类似IEx的工具打印的结果：
+`Inspect`协议用于把任何数据结构转换成可读的文字呈现。这也是类似IEx的工具打印的结果：
 
 ```
 iex> {1, 2, 3}
@@ -183,13 +181,11 @@ iex> %User{}
 %User{name: "jose", age: 27}
 ```
 
-谨记，作为一个约定，当打印出的值以`#`开头，它是在用Elixir中非法的语法来呈现一个数据结构。这说明，inspect协议是不可逆的，因为在这个过程中有些信息丢失了。
+谨记，作为一个约定，当打印出的值以`#`开头的值时，它代表一种Elixir中无效语法的数据结构。这说明inspect协议是不可逆的，因为在这个过程中有些信息可能会丢失。
 
 ```
-iex> {1, 2, 3}
-{1,2,3}
-iex> %User{}
-%User{name: "jose", age: 27}
+iex> inspect &(&1+2)
+"#Function<6.71889879/1 in :erl_eval.expr/5>"
 ```
 
-除此之外，Elixir中还有一些其他的协议， 但这一章涵盖了最常见的几个。在下一章我们讲学习一点Elixir的异常和错误处理。
+除此之外，Elixir中还有一些其他的协议，但这一章涵盖了最常见的几个。

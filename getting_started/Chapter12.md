@@ -1,6 +1,6 @@
 # 12 IO
 
-这一章将简单介绍一下Elixir的输入输出机制，和相关的模块，比如`[IO](http://elixir-lang.org/docs/stable/IO.html)`，`[File](http://elixir-lang.org/docs/stable/File.html)`和`[Path](http://elixir-lang.org/docs/stable/Path.html)`。
+这一章将简单介绍一下Elixir的输入输出机制，和相关的模块，比如 [IO](http://elixir-lang.org/docs/stable/IO.html)，[File](http://elixir-lang.org/docs/stable/File.html) 和 [Path](http://elixir-lang.org/docs/stable/Path.html)。
 
 在一开始的时候，我们在写这个系列的教程的时候，有一个很早的比较粗躁的版本。但我们发现IO系统其实是提供了一个很好的机会来管窥Elixir和Erlang虚拟机中的一些哲学和有意思的地方。
 

@@ -1,169 +1,89 @@
-# 17 `try`, `catch`和`rescue`
+# 17 Comprehensions
 
-Elixir有三个错误处理机制：错误，抛出和退出。在这一章我们将一一探索它们，包括应该在什么时候使用它们。
+在Elixir中，常常用到循环历遍一个可枚举类，用于过滤结果，和映射到另一个列表的值上。
 
-## 17.1 错误
+Comprehension是对这一中结构的语法糖， 把这些常见的任务用一个特殊的形式`for`组织起来。
 
-第一个典型的错误是试图把一个数字和原子相加：
-
-```
-iex> :foo + 1
-** (ArithmeticError) bad argument in arithmetic expression
-     :erlang.+(:foo, 1)
-```
-
-在运行时调用宏`raise/1 `导致一个错误：
+例如，我们能用下面的方式得到一个列表值的平方：
 
 ```
-iex> raise "oops"
-** (RuntimeError) oops
+iex> for n <- [1, 2, 3, 4], do: n * n
+[1, 4, 9, 16]
 ```
 
-另一些错误能通过给`raise/2`传递一个错误名和一个关键字列表来形成：
+一个Compreshension由三个部分组成： 生成器，过滤器和集合。
+
+##　17.1 生成器和过滤器
+
+在上面的表达式中，`n <- [1, 2, 3,4]`是生成器。产出了供后面comprehension的值。任何的可枚举类都能被放置在产生器表达式的右侧：
 
 ```
-iex> raise ArgumentError, message: "invalid argument foo"
-** (ArgumentError) invalid argument foo
+iex> for n <- 1..4, do: n * n
+[1, 4, 9, 16]
 ```
 
-你也可以用宏`defexception/2`定义你自己的错误。最常见的例子是定义一个带有message域的异常：
+生成器表达式也支持模式匹配，来丢弃所有不匹配的模式。想象一下假如不用范围，我们有一个关键字列表，这个列表有两种键`:good `和`:bad`。而我们只关心好的值的计算结果：
 
 ```
-iex> defexception MyError, message: "default message"
-iex> raise MyError
-** (MyError) default message
-iex> raise MyError, message: "custom message"
-** (MyError) custom message
+iex> values = [good: 1, good: 2, bad: 3, good: 4]
+iex> for {:good, n} <- values, do: n * n
+[1, 4, 16]
 ```
 
-异常可以被通过`try/rescue`挽救：
+除此之外，过滤器能被用于过滤一些特定的元素。例如，我们能只计算奇数的平方：
 
 ```
-iex> try do
-...>   raise "oops"
-...> rescue
-...>   e in RuntimeError -> e
+iex> require Integer
+iex> for n <- 1..4, Integer.odd?(n), do: n * n
+[1, 9]
+```
+
+一个过滤器会保留除了`false`和`nil`之外的所有值。
+
+相比直接使用`Enum`和`Stream `模块中的函数，comprehension提供了一种简洁的多的表现形式。而且，comprehension也允许多个生成器和过滤器。这里是一个例子用来接受一个文件夹的列表，然后删除每个文件夹中的所有文件：
+
+```
+for dir  <- dirs,
+    file <- File.ls!(dir),
+    path = Path.join(dir, file),
+    File.regular?(path) do
+  File.rm!(path)
+end
+```
+
+谨记，在comprehension内不赋值的变量，无论是在生成器内，还是在过滤器内，不会影响到comprehension外的环境
+
+## 17.2 比特串生成器
+
+比特串生成器也支持的，而且当你需要组织比特串流的时候会非常有用。下面的这个例子从一个二进制接受一个列表的像素，每个像素用红绿蓝三色的数值表示，把它们转成三元组。
+
+```
+iex> pixels = <<213, 45, 132, 64, 76, 32, 76, 0, 0, 234, 32, 15>>
+iex> for <<r::8, g::8, b::8 <- pixels>>, do: {r, g, b}
+[{213,45,132},{64,76,32},{76,0,0},{234,32,15}]
+```
+
+一个比特串的生成器能和“普通”的可枚举类产生器混合，并提供过滤器。
+
+## 17.3 返回列表之外的结果
+
+在上面的例子中，comprehension返回一个列表作为结果。
+
+然而，用传递`:into`选项，compreshension的结果能被插入不同的数据结果。例如，我们能用比特串产生器和`:into`选项来轻松地删除字符串中的所有空格：
+
+```
+iex> for <<c <- " hello world ">>, c != ?\s, into: "", do: <<c>>
+"helloworld"
+```
+`Set`， `maps`和其他类型的字典也能被给予`:into`选项。总的来说，`:into`接受任何一种数据结构，只要它实现了`Collectable`协议。
+
+例如，模块提供的流，它们既是`Enumerable`又是`Collectable`。你能用comprehension实现一个echo控制台，它返回所有接受到的输入和大写形式。
+
+```
+iex> stream = IO.stream(:stdio, :line)
+iex> for line <- stream, into: stream do
+...>   String.upcase(line) <> "\n"
 ...> end
-RuntimeError[message: "oops"]
 ```
 
-上面的例子挽救了一个运行时错误并返回这个错误，并在`iex`的session中打印出来。在实践中Elixir开发者很少使用`try/rescue`结构。例如，许多语言中但一个文件无法被打开时，会强制你去挽救一个错误。相反Elixir提供了一个函数`File.read/1`，它返回一个包含文件是否被成功打开的相关信息的元组。
-
-```
-iex> File.read "hello"
-{:error, :enoent}
-iex. File.write "hello", "world"
-:ok
-iex> File.read "hello"
-{:ok, "world"}
-```
-
-这里没有`try/rescue`。如果你想要处理开打文件的不同后果，你可以非常方便地使用`case`做模式识别：
-
-```
-iex> case File.read "hello" do
-...>   {:ok, body} -> IO.puts "got ok"
-...>   {:error, body} -> IO.puts "got error"
-...> end
-```
-
-当然，最终还是取决你自己的应用来决定打开一个文件是不是一个错误。这也是为什么Elixir没有在`File.read/1`和其他函数中只用异常。它把选择最佳的处理方式的决定留给了开发者。
-
-在某些情况下，当你期待一个文件的确存在（并如果没有这个文件，这的确是一个错误），有可以轻松地嗲用`File.read!/1`：
-
-```
-iex> File.read! "unknown"
-** (File.Error) could not read file unknown: no such file or directory
-    (elixir) lib/file.ex:305: File.read!/1
-```
-
-用另一种话来说，我们避免使用`try/rescue`因为我们不用错误来做控制流程。在Eliixr中，我们对错误的理解是字面意义上的：它们就是没有预期的或留给意外的或情况的。如果你的确需要流程控制结构，就需要用到throw。这也是下一章的内容。
-
-## 17.2 抛出
-
-在Elixir中，一个抛出的值能之后被捕获。`throw`和`catch`是用于除了是用`throw`和`catch`之外没法获取一个值的情况。
-
-这些情况在时间中是不常见的，除非当你要和一些API定义地不好的库打交道的时候。例如，让我们想象`v`模块没有提供提供寻找值的API，所以我们必须去找到第一个是13的倍数的数字：
-
-```
-iex> try do
-...>   Enum.each -50..50, fn(x) ->
-...>     if rem(x, 13) == 0, do: throw(x)
-...>   end
-...>   "Got nothing"
-...> catch
-...>   x -> "Got #{x}"
-...> end
-"Got -39"
-```
-
-然而，在实际上`Enum.find/2`就可以轻松做到：
-
-```
-iex> Enum.find -50..50, &(rem(&1, 13) == 0)
--39
-```
-
-## 17.3 退出
-
-所有的Eliixr代码都运行在进程中，进程之间互相通信。当一个进程死亡，它会发送一个`exit`信号。也可以手动发送一个退出信号来杀死一个进程：
-
-```
-iex> spawn_link fn -> exit(1) end
-#PID<0.56.0>
-** (EXIT from #PID<0.56.0>) 1
-```
-
-在上面的例子中，我们链接了死亡的进程之后发送了退出信号，它的值是1.Elixir控制台自动处理这些消息，并把它们打印出来：
-
-`exit`也能被``捕获：
-
-```
-iex> try do
-...>   exit "I am exiting"
-...> catch
-...>   :exit, _ -> "not really"
-...> end
-"not really"
-```
-
-用`try/catch`已经是非常罕见的，用它们来捕获退出更是少见。
-
-`exit`信号是Eralng虚拟机提供的tolerant机制的重要组成部分。进程通常在监控树之下运行，它们其实是一个等待被监控的进程的退出信号的进程。当一个收到一个退出信号，它们的监控策略被触发并将死亡的被监控进程重启。
-
-正式这个监控系统使得`try/catch`和`try/rescue`在Elixir中用的这么少。与其挽救一个错误，我们更愿意让他`先失败`，因为监控树会保证我们的应用在错误之后，会重回到一个已知的初始状态。
-
-## 17.4 之后
-
-有时的确有必要时候`try/after`来保证一个资源在某些特定的动作之后被清理。例如，我们打开了一个文件并用` try/after`来保证它的关闭。
-
-```
-iex> {:ok, file} = File.open "sample", [:utf8, :write]
-iex> try do
-...>   IO.write file, "josé"
-...>   raise "oops, something went wrong"
-...> after
-...>   File.close(file)
-...> end
-** (RuntimeError) oops, something went wrong
-```
-
-## 17.5 变量作用域
-
-牢记在`try/catch/rescue/after `内部定义的变量并不会泄漏到外部环境中。这是因为`try`块也会会失败，所以变量也许从一开始就是找不到的。换一句话来说，这些代码是非法的：
-
-```
-iex> try do
-...>   from_try = true
-...> after
-...>   from_after = true
-...> end
-iex> from_try
-** (RuntimeError) undefined function: from_try/0
-iex> from_after
-** (RuntimeError) undefined function: from_after/0
-```
-
-到这里，我们结束了我们对`try`，`catch`和`rescue`的介绍。你会发现和在其他语言中相比，它们在Elixir中用的不多。当然在某些特定的情况下当一个库或一些特定的代码“不按规矩出牌”的时候，也许它们会有用。
-
-是时候让我们谈谈一些Elixir的构建比如comprehension和sigil了。
+如果你在那个控制台里输入任何字符串，你将会看到同样的值会以大写的形式被打印出来。不幸的是，这个comprehension会锁死你的终端，所以你必须敲击两次``才能退出程序。：）
