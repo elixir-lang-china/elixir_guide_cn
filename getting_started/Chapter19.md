@@ -12,7 +12,7 @@ iex> :foo + 1
      :erlang.+(:foo, 1)
 ```
 
-在运行时调用宏`raise/1 `导致一个错误：
+在任何时候都可以使用 `raise/1` 来抛出一个运行时错误：
 
 ```
 iex> raise "oops"
@@ -28,15 +28,20 @@ iex> raise ArgumentError, message: "invalid argument foo"
 
 你也可以用宏`defexception/2`定义你自己的错误。最常见的例子是定义一个带有message域的异常：
 
+你也可以定义你自己的错误，通过创建一个模块，并且在其中使用 `defexception`。
+通过这种方法，你可以创造一个名字和模块相同的错误。在大多数场合下使用消息字段来自定义异常：
+
 ```
-iex> defexception MyError, message: "default message"
+iex> defmodule MyError do
+iex>   defexception message: "default message"
+iex> end
 iex> raise MyError
 ** (MyError) default message
 iex> raise MyError, message: "custom message"
 ** (MyError) custom message
 ```
 
-异常可以被通过`try/rescue`挽救：
+错误可以通过`try/rescue`被挽救：
 
 ```
 iex> try do
@@ -44,7 +49,7 @@ iex> try do
 ...> rescue
 ...>   e in RuntimeError -> e
 ...> end
-RuntimeError[message: "oops"]
+%RuntimeError{message: "oops"}
 ```
 
 上面的例子挽救了一个运行时错误并返回这个错误，并在`iex`的session中打印出来。在实践中Elixir开发者很少使用`try/rescue`结构。例如，许多语言中但一个文件无法被打开时，会强制你去挽救一个错误。相反Elixir提供了一个函数`File.read/1`，它返回一个包含文件是否被成功打开的相关信息的元组。
@@ -62,14 +67,14 @@ iex> File.read "hello"
 
 ```
 iex> case File.read "hello" do
-...>   {:ok, body} -> IO.puts "got ok"
-...>   {:error, body} -> IO.puts "got error"
+...>   {:ok, body}      -> IO.puts "Success: #{body}"
+...>   {:error, reason} -> IO.puts "Error: #{reason}"
 ...> end
 ```
 
 当然，最终还是取决你自己的应用来决定打开一个文件是不是一个错误。这也是为什么Elixir没有在`File.read/1`和其他函数中只用异常。它把选择最佳的处理方式的决定留给了开发者。
 
-在某些情况下，当你期待一个文件的确存在（并如果没有这个文件，这的确是一个错误），有可以轻松地嗲用`File.read!/1`：
+在某些情况下，当你期待一个文件的确存在（并如果没有这个文件，这的确是一个错误），有可以轻松地使用`File.read!/1`：
 
 ```
 iex> File.read! "unknown"
@@ -77,7 +82,7 @@ iex> File.read! "unknown"
     (elixir) lib/file.ex:305: File.read!/1
 ```
 
-用另一种话来说，我们避免使用`try/rescue`因为我们不用错误来做控制流程。在Eliixr中，我们对错误的理解是字面意义上的：它们就是没有预期的或留给意外的或情况的。如果你的确需要流程控制结构，就需要用到throw。这也是下一章的内容。
+用另一种话来说，我们避免使用`try/rescue`是因为我们不用错误来做控制流程。在Eliixr中，我们对错误的理解是字面意义上的：它们就是没有预期的或留给意外的或情况的。如果你的确需要流程控制结构，就需要用到throw。这也是下一章的内容。
 
 ## 19.2 抛出
 
@@ -165,5 +170,3 @@ iex> from_after
 ```
 
 到这里，我们结束了我们对`try`，`catch`和`rescue`的介绍。你会发现和在其他语言中相比，它们在Elixir中用的不多。当然在某些特定的情况下当一个库或一些特定的代码“不按规矩出牌”的时候，也许它们会有用。
-
-是时候让我们谈谈一些Elixir的构建比如comprehension和sigil了。
