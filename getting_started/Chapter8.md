@@ -7,7 +7,7 @@ iex> String.length "hello"
 5
 ```
 
-要在Elixir中创建我们自己的模块，我需要使用宏`defmodule`。我们使用另一个宏`def`在模块中定义函数：
+要在Elixir中创建我们自己的模块，我们需要使用宏`defmodule`。我们使用另一个宏`def`在模块中定义函数：
 
 ```
 iex> defmodule Math do
@@ -78,7 +78,7 @@ elixir math.exs
 
 ## 8.3 有名函数
 
-在模块内部，我们可以用`def/2`定义函数，用`defp/2`定义私有函数。用`def/2`定义的函数能够外部的模块调用而私有函数只能被从模块内部使用。
+在模块内部，我们可以用`def/2`定义函数，用`defp/2`定义私有函数。用`def/2`定义的函数能够被外部的模块调用，而私有函数只能被从模块内部使用。
 
 ```
 defmodule Math do
@@ -119,7 +119,16 @@ Math.zero?([1,2,3])
 
 ## 8.4 函数捕捉
 
-在这篇教程中，我们一直都用`函数名/参数量`的方式指向函数。用这种方式也可以用来获取模块中的有名函数。让我们重新打开`iex`，并运行之前定义的`math.exs`脚本：
+在这篇教程中，我们一直都用`函数名/参数量`这种标记来指代函数。用这种方式实际上是把它当做一种函数类型来获取一个有名函数。让我们编辑 `math.exs` 使它看起来像这样：
+
+```
+defmodule Math do
+  def zero?(0), do: true
+  def zero?(x) when is_number(x), do: false
+end
+```
+
+然后打开 `iex`，运行上文定义的 `math.exs` 文件。
 
 ```
 $ iex math.exs
@@ -154,7 +163,19 @@ iex> fun.(1)
 2
 ```
 
-上面例子中`&1`是传给函数的第一个参数。`&(&1 + 1)`等价于`fn x -> x + 1 end`。上面的语法适合于定义短小的函数。更多的关于函数捕捉操作符`&`，请参考[Kernel.SpecialForms文档](http://elixir-lang.org/docs/stable/Kernel.SpecialForms.html)。
+上面例子中`&1`是传给函数的第一个参数。`&(&1 + 1)`等价于`fn x -> x + 1 end`。上面的语法适合于定义短小的函数。
+
+如果你想使用相同的方式调用一个模块内的函数，你可以执行 `&Module.function()`：
+
+```
+iex> fun = &List.flatten(&1, &2)
+&List.flatten/2
+iex> fun.([1, [[2], 3]], [4, 5])
+[1, 2, 3, 4, 5]
+```
+
+`&List.flatten(&1, &2)` 书写等同于 `fn(list, tail) -> List.flatten(list, tail)`。
+更多的关于函数捕捉操作符`&`，请参考[Kernel.SpecialForms文档](http://elixir-lang.org/docs/stable/Kernel.SpecialForms.html)。
 
 ## 8.5 默认参数
 
@@ -189,7 +210,7 @@ hello
 :ok
 ```
 
-在一个一个带有默认参数的函数有多个子句，我们建议创建一个函数头（无需实际的函数体），专用于申明默认参数：
+如果一个带有默认参数的函数有多个子句，我们建议创建一个函数头（无需实际的函数体），专用于申明默认参数：
 
 ```
 defmodule Concat do
