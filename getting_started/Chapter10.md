@@ -2,7 +2,7 @@
 
 ## 10.1 可枚举类
 
-Elixir中提供了可枚举类，和用于处理其的的[Enum模块](http://elixir-lang.org/docs/stable/Enum.html)。我们已经见到过两种可枚举类了，列表和表单：
+Elixir中提供了可枚举类，和用于处理其的[Enum模块](http://elixir-lang.org/docs/stable/Enum.html)。我们已经见到过两种可枚举类了，列表和表单：
 
 ```
 iex> Enum.map([1, 2, 3], fn x -> x * 2 end)
