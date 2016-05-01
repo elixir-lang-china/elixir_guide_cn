@@ -1,89 +1,176 @@
-# 18 Comprehensions
+# 19 Sigils
 
-在Elixir中，常常用到循环历遍一个可枚举类，用于过滤结果，和映射到另一个列表的值上。
+我们已经学习到了Elixir提供了双引号的字符串和单引号的字符列表。然而，这只是这个语言中那些具有文字表现形式的结构的表层现象。比如，原子，是另一种常常通过``形式创建的结构。
 
-Comprehension是对这一中结构的语法糖， 把这些常见的任务用一个特殊的形式`for`组织起来。
+Elixir的其中一个目标是可扩展性：开发者应该能够在某个领域扩展语言。计算机科学已经变得如此宽广的范围，以至于已经不可能仅仅用一种语言的核心就能解决所有的问题。我们最佳的赌注是使得语言可扩展，那样开发者，公司或者社区能在相关的领域内扩展语言。
 
-例如，我们能用下面的方式得到一个列表值的平方：
+在这一章，我们将探索sigil，它是语言层面提供的能用于字面呈现的机制之一。
 
-```
-iex> for n <- [1, 2, 3, 4], do: n * n
-[1, 4, 9, 16]
-```
+# 19.1 正则表达式
 
-一个Compreshension由三个部分组成： 生成器，过滤器和集合。
-
-##　18.1 生成器和过滤器
-
-在上面的表达式中，`n <- [1, 2, 3,4]`是生成器。产出了供后面comprehension的值。任何的可枚举类都能被放置在产生器表达式的右侧：
+Sigils由一个约等于号（`~`）开始，跟着一个字母，再跟着是一个分隔符。最常见的sigil是`~r`，用于[正则表达式](https://en.wikipedia.org/wiki/Regular_Expressions)：
 
 ```
-iex> for n <- 1..4, do: n * n
-[1, 4, 9, 16]
+# A regular expression that returns true if the text has foo or bar
+iex> regex = ~r/foo|bar/
+~r/foo|bar/
+iex> "foo" =~ regex
+true
+iex> "bat" =~ regex
+false
 ```
 
-生成器表达式也支持模式匹配，来丢弃所有不匹配的模式。想象一下假如不用范围，我们有一个关键字列表，这个列表有两种键`:good `和`:bad`。而我们只关心好的值的计算结果：
+Elixir提供了Perl兼容的正则表达式（regrexs），类似于在[PCRE](http://www.pcre.org/)库中实现的。正则也支持修饰符。例如，修饰符`i`会使得一个正则表达式无关大小写：
 
 ```
-iex> values = [good: 1, good: 2, bad: 3, good: 4]
-iex> for {:good, n} <- values, do: n * n
-[1, 4, 16]
+iex> "HELLO" =~ ~r/hello/
+false
+iex> "HELLO" =~ ~r/hello/i
+true
 ```
 
-除此之外，过滤器能被用于过滤一些特定的元素。例如， 我们能只计算奇数的平方：
+在[`Regex`](http://elixir-lang.org/docs/stable/Regex.html)模块的文档中有更详细的有关正则表达式的其他修饰符和所支持的其他操作的内容。
+
+到目前为止，所有的例子都使用了`/`来分割正则表达式。然而sigil支持8中不同的分隔符：
 
 ```
-iex> require Integer
-iex> for n <- 1..4, Integer.odd?(n), do: n * n
-[1, 9]
+~r/hello/
+~r|hello|
+~r"hello"
+~r'hello'
+~r(hello)
+~r[hello]
+~r{hello}
+~r<hello>
 ```
 
-一个过滤器会保留除了`false`和`nil`之外的所有值。
+只所以支持这么多不同的操作符是因为不同的分隔符能更方便地在不同的sigils中使用。例如，在正则中使用圆括号也许就不合适，因为这会和正则内部的圆括号混淆。然而， 圆括号在其他的sigil中就非常适用，我们将在下面看到例证。
 
-相比直接使用`Enum`和`Stream `模块中的函数，comprehension提供了一种简洁的多的表现形式。而且，comprehension也允许多个生成器和过滤器。这里是一个例子用来接受一个文件夹的列表，然后删除每个文件夹中的所有文件：
+## 19.2 字符串，字符列表和其他sigils
 
-```
-for dir  <- dirs,
-    file <- File.ls!(dir),
-    path = Path.join(dir, file),
-    File.regular?(path) do
-  File.rm!(path)
-end
-```
+除了正则，Elixir默认提供了其他三中sigils。
 
-谨记，在comprehension内不赋值的变量，无论是在生成器内，还是在过滤器内，不会影响到comprehension外的环境
-
-## 18.2 比特串生成器
-
-比特串生成器也支持的，而且当你需要组织比特串流的时候会非常有用。下面的这个例子从一个二进制接受一个列表的像素，每个像素用红绿蓝三色的数值表示，把它们转成三元组。
+`~s`sigils被用于产生字符串，同双引号类似。
 
 ```
-iex> pixels = <<213, 45, 132, 64, 76, 32, 76, 0, 0, 234, 32, 15>>
-iex> for <<r::8, g::8, b::8 <- pixels>>, do: {r, g, b}
-[{213,45,132},{64,76,32},{76,0,0},{234,32,15}]
+iex> ~s(this is a string with "quotes")
+"this is a string with \"quotes\""
 ```
 
-一个比特串的生成器能和“普通”的可枚举类产生器混合，并提供过滤器。
-
-# 18.3 Into
-
-在上面的例子中，comprehension返回一个列表作为结果。
-
-然而，用传递`:into`选项，compreshension的结果能被插入不同的数据结果。例如，我们能用比特串产生器和`:into`选项来轻松地删除字符串中的所有空格：
+而`~c`sigil用于产生字符列表：
 
 ```
-iex> for <<c <- " hello world ">>, c != ?\s, into: "", do: <<c>>
-"helloworld"
+iex> ~c(this is a string with "quotes")
+'this is a string with "quotes"'
 ```
-`Set`， `maps`和其他类型的字典也能被给予`:into`选项。总的来说，`:into`接受任何一种数据结构，只要它实现了`Collectable`协议。
 
-例如，模块提供的流，它们既是`Enumerable`又是`Collectable`。你能用comprehension实现一个echo控制台，它返回所有接受到的输入和大写形式。
+`~w`sigil用于产生一个用空格分割的词汇的列表：
 
 ```
-iex> stream = IO.stream(:stdio, :line)
-iex> for line <- stream, into: stream do
-...>   String.upcase(line) <> "\n"
+iex> ~w(foo bar bat)
+["foo", "bar", "bat"]
+```
+
+`~w`sigil也能接受修饰符`c`，`s`和`a`，来选择结果的格式：
+
+```
+iex> ~w(foo bar bat)a
+[:foo, :bar, :bat]
+```
+
+除了小写字母的sigils， Elixir也支持大写形式的sigils。虽然`~s`和`~S`都返回字符串，前者能允许代码忽略和融合，而后者不能：
+
+
+```
+iex> ~s(String with escape codes \x26 interpolation)
+"String with escape codes & interpolation"
+iex> ~S(String without escape codes and without #{interpolation})
+"String without escape codes and without \#{interpolation}"
+```
+
+下面这些忽略符号能被用于字符串和字符列表：
+* `\"` - 双引号
+* `\''` - 单引号
+* `\\` - 单斜杠
+* `\a` - bell/alert
+* `\b` - backspace
+* `\d` - 删除
+* `\e` - 忽略
+* `\f` - form feed
+* `\n` - 换行符
+* `\r` - 回车
+* `\s` - 空格
+* `\t` - tab
+* `\v` - vertial tab
+* `\DDD`，`\DD`，`\D` - 用八进制表示的字符 DDD，DD或D（例如`\377`）
+* `\xDD` - 用十六进制表示的字符 DD， 例如（`\x37`）
+* `\x{D...}` - 用十六禁止表示的字符，至少含有一个十六进制字符（例如， `/x{abc123}`）
+
+Sigil也支持heredocs，用三双引号或三单引号来作为分隔符：
+
+```
+iex> ~s"""
+...> this is
+...> a heredoc string
+...> """
+```
+
+最常见的heredocs sigil是用于编写文档。例如，如果你需要在你的文档中包含忽略字符，会很麻烦，因为它需要对某些字符做双重忽略：
+
+```
+@doc """
+Converts double-quotes to single-quotes.
+
+## Examples
+
+    iex> convert("\\\"foo\\\"")
+    "'foo'"
+
+"""
+def convert(...)
+```
+
+但有了`-S`， 我们能彻底避免这个问题：
+
+```
+@doc ~S"""
+Converts double-quotes to single-quotes.
+
+## Examples
+
+    iex> convert("\"foo\"")
+    "'foo'"
+
+"""
+def convert(...)
+```
+
+# 19.3 定制sigil
+
+正如在开头暗示的那样，sigil是Elixir中可扩展的。实际上，sigil`sigil_r`相当于用两个参数调用函数`sigil_r`：
+
+```
+iex> sigil_r(<<"foo">>, 'i')
+~r"foo"i
+```
+
+这就是说，我们通过函数`sigil_r`来得到sigil`~r`的文档：
+
+
+```
+iex> h sigil_r
+...
+```
+
+我们也能通过实现何时的函数，我们也能实现自己的sigil。例如，让我们实现sigil`~i(13)`来回返一个整数：
+
+```
+iex> defmodule MySigils do
+...>   def sigil_i(binary, []), do: binary_to_integer(binary)
 ...> end
+iex> import MySigils
+iex> ~i(13)
+13
 ```
 
-如果你在那个控制台里输入任何字符串，你将会看到同样的值会以大写的形式被打印出来。不幸的是，这个comprehension会锁死你的终端，所以你必须敲击两次``才能退出程序。：）
+sigil也能在宏的帮助下，在编译时发挥作用。例如，在Elixir中正则表达式在编译时会被编译成高效的代码形式，随后就无需在运行时做这些事情了。如果你对这个主题感兴趣，我们推荐你学习宏并且查阅这些sigils是如何在`Kernel`模块中实现的。
