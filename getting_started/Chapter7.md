@@ -58,7 +58,7 @@ iex> if false, do: :this, else: :that
 :that
 ```
 
-`do:`和`else:`启示就是关键字列表！实际上，这个和上面的调用是等价的：
+`do:`和`else:`其实就是关键字列表！实际上，这个和上面的调用是等价的：
 
 ```
 iex> if(false, [do: :this, else: :that])
