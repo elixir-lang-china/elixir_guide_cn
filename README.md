@@ -31,7 +31,7 @@ Translate [official elixir getting started guide](http://elixir-lang.org/getting
 
 ### [第十四章 - 模块属性](./getting_started/Chapter14.md)                        ✓
 
-### [第十五章 - Structs](./getting_started/Chapter15.md)                        ✓
+### [第十五章 - Structs](./getting_started/Chapter15.md)                        ✓
 
 ### [第十六章 - 协议](./getting_started/Chapter16.md)                            ✓
 
