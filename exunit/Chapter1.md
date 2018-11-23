@@ -159,4 +159,4 @@ use ExUnit.Case, async: true
 
 ## 2 干吧
 
-ExUnit仍然是一个为完工的项目。我们鼓励你访问我们的[issue tracker](https://github.com/elixir-lang/elixir/issues)，提交你希望在ExUnit中看到的新特性，
+ExUnit仍然是一个未完工的项目。我们鼓励你访问我们的[issue tracker](https://github.com/elixir-lang/elixir/issues)，提交你希望在ExUnit中看到的新特性，
